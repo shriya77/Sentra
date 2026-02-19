@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Moon, Activity, Keyboard, TrendingDown, Minus } from 'lucide-react';
+import { Moon, Activity, Keyboard, TrendingDown, Minus, AlertCircle, Lightbulb } from 'lucide-react';
 import { api } from '../lib/api';
 import { useTheme } from '../contexts/ThemeContext';
 import { DashboardSkeleton } from '../components/Skeleton';
@@ -101,21 +101,59 @@ export default function Dashboard() {
       {hasInsight && (
         <div className="mb-6 animate-[slideUp_0.8s_ease-out_0.2s_both]">
           <div className="rounded-2xl glass-dark p-5 border border-white/20">
-            <h3 className={`text-sm font-semibold uppercase tracking-wide mb-3 ${theme === 'dark' ? 'text-slate-300' : 'text-[#475569]'}`}>What we're noticing</h3>
-            <p className={`text-body leading-relaxed mb-3 ${theme === 'dark' ? 'text-slate-200' : 'text-[#334155]'}`}>
-              {insight.short_insight}
-            </p>
-            {insight.drivers?.length ? (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {insight.drivers.map((d) => (
-                  <span key={d} className="px-2.5 py-1 rounded-md bg-sentra-cosmic-accent/30 text-xs font-medium text-sentra-primary border border-sentra-cosmic-accent/20">
-                    {d}
-                  </span>
-                ))}
+            <h3 className={`text-sm font-semibold uppercase tracking-wide mb-4 ${theme === 'dark' ? 'text-slate-300' : 'text-[#475569]'}`}>What we're noticing</h3>
+            
+            {/* What we noticed */}
+            <div className="mb-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className={`p-2 rounded-xl flex-shrink-0 ${theme === 'dark' ? 'bg-sentra-cosmic-accent/20' : 'bg-sentra-accent-pale/40'}`}>
+                  <AlertCircle className={`w-4 h-4 ${theme === 'dark' ? 'text-sentra-primary' : 'text-sentra-primary-deep'}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  {insight.drivers?.length ? (
+                    <div className="mb-2">
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {insight.drivers.map((d) => (
+                          <span key={d} className={`px-2.5 py-1 rounded-lg text-xs font-medium ${theme === 'dark' ? 'bg-sentra-cosmic-accent/30 text-sentra-primary border border-sentra-cosmic-accent/20' : 'bg-sentra-accent-pale/60 text-sentra-primary-deep border border-sentra-primary/20'}`}>
+                            {d}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  <p className={`text-body-sm leading-relaxed ${theme === 'dark' ? 'text-slate-200' : 'text-[#334155]'}`}>
+                    {insight.short_insight}
+                  </p>
+                </div>
               </div>
-            ) : null}
-            {score?.momentum && (
-              <MomentumRow momentum={score.momentum} />
+            </div>
+            
+            {/* What you should do */}
+            {insight.suggested_actions?.length > 0 && (
+              <div className={`pt-4 border-t ${theme === 'dark' ? 'border-white/20' : 'border-white/60'}`}>
+                <div className="flex items-start gap-3">
+                  <div className={`p-2 rounded-xl flex-shrink-0 ${theme === 'dark' ? 'bg-sentra-primary/20' : 'bg-sentra-primary/10'}`}>
+                    <Lightbulb className={`w-4 h-4 ${theme === 'dark' ? 'text-sentra-primary' : 'text-sentra-primary-deep'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${theme === 'dark' ? 'text-slate-300' : 'text-[#475569]'}`}>What you should do</p>
+                    <ul className="space-y-1.5">
+                      {insight.suggested_actions.map((action, idx) => (
+                        <li key={idx} className={`flex items-start gap-2 ${theme === 'dark' ? 'text-slate-200' : 'text-[#334155]'}`}>
+                          <span className={`text-sentra-primary mt-0.5 flex-shrink-0`}>•</span>
+                          <span className="text-body-sm leading-relaxed">{action}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {score?.momentum && score?.confidence && score.confidence !== 'low' && (
+              <div className="mt-4">
+                <MomentumRow momentum={score.momentum} />
+              </div>
             )}
           </div>
         </div>
@@ -161,7 +199,7 @@ export default function Dashboard() {
             {signals?.activity || "Movement from check-in. Even short breaks help when you're on care duty."}
           </SignalCard>
           <SignalCard title="Typing" icon={<Keyboard className="w-5 h-5" />} compact={true}>
-            {signals?.typing || "Rhythm from typing—no content stored. Helps us sense stress and load."}
+            {signals?.typing || "Rhythm from typing. No content stored. Helps us sense stress and load."}
           </SignalCard>
         </div>
       </div>

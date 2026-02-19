@@ -1,4 +1,4 @@
-"""Seed: tables + org users for Care Mode. No fake personal data — score and trend come from your check-ins."""
+"""Seed: tables + org users for Care Mode. No fake personal data. Score and trend come from your check-ins."""
 from datetime import date, timedelta
 
 from sqlalchemy.orm import Session

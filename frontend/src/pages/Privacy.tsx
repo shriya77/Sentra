@@ -34,11 +34,11 @@ export default function Privacy() {
         <ul className="space-y-2 text-body-sm text-sentra-muted">
           <li className="flex gap-3">
             <EyeOff className="w-5 h-5 flex-shrink-0 text-sentra-primary" />
-            <span>Raw typed content—only timing patterns</span>
+            <span>Raw typed content. Only timing patterns are stored.</span>
           </li>
           <li className="flex gap-3">
             <EyeOff className="w-5 h-5 flex-shrink-0 text-sentra-primary" />
-            <span>Personal identifiers—your data stays yours</span>
+            <span>Personal identifiers. Your data stays yours.</span>
           </li>
         </ul>
       </Card>
@@ -47,7 +47,7 @@ export default function Privacy() {
         <div className="flex gap-3">
           <Stethoscope className="w-5 h-5 flex-shrink-0 text-sentra-primary" />
           <p className="text-body-sm text-sentra-muted">
-            Sentra is <strong className="text-sentra-primary">not a medical device</strong> and does not provide a diagnosis. It is for pattern awareness only—helping caregivers notice shifts in their own wellbeing that can come with the stress of caring for someone at home.
+            Sentra is <strong className="text-sentra-primary">not a medical device</strong> and does not provide a diagnosis. It is for pattern awareness only, helping caregivers notice shifts in their own wellbeing that can come with the stress of caring for someone at home.
           </p>
         </div>
       </Card>
@@ -69,7 +69,7 @@ export default function Privacy() {
               If you are a caregiver in crisis or overwhelmed, please reach out to a mental health professional or crisis resource. This app is not a substitute for professional care.
             </p>
             <p className="text-body-sm">
-              (No phone numbers are listed here—please search for local crisis or helpline services if needed.)
+              (No phone numbers are listed here. Please search for local crisis or helpline services if needed.)
             </p>
           </div>
         </div>

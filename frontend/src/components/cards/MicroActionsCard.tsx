@@ -50,7 +50,7 @@ export default function MicroActionsCard({ interventions, onComplete, compact }:
           {interventions.map((item) => {
             const done = item.completed || completedIds.has(item.intervention_id);
             const showNice = justCompleted === item.intervention_id;
-            const estimated = ESTIMATED_TIMES[item.intervention_id] ?? '—';
+            const estimated = ESTIMATED_TIMES[item.intervention_id] ?? '-';
             return (
               <li
                 key={item.intervention_id}

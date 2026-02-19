@@ -36,7 +36,7 @@ export default function CareMode() {
     <div className="max-w-4xl mx-auto space-y-6">
       <h1 className={`font-serif text-3xl font-semibold tracking-tight ${theme === 'dark' ? 'text-slate-100' : 'text-[#1e293b]'}`}>Caregiver overview</h1>
       <p className={`text-body-sm mt-1 ${theme === 'dark' ? 'text-slate-300' : 'text-sentra-muted'}`}>
-        See how many home caregivers are Stable, Watch, or High risk—anonymized counts only, no personal details.
+        See how many home caregivers are Stable, Watch, or High risk. Anonymized counts only, no personal details.
       </p>
       <div className="flex items-center gap-2 text-body-sm text-sentra-muted">
         <Shield className="w-4 h-4" />

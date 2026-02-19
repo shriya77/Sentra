@@ -9,8 +9,25 @@ interface TypingCaptureFormProps {
   compact?: boolean;
 }
 
+// Prompts for typing test
+const TYPING_PROMPTS = [
+  "The quick brown fox jumps over the lazy dog. This sentence contains every letter of the alphabet.",
+  "Caring for others requires us to care for ourselves first. Your wellbeing matters.",
+  "Small steps lead to big changes. Take a moment to breathe and reflect on your day.",
+  "Self-care is not selfish. It's essential for those who give so much to others.",
+  "Every caregiver deserves support, understanding, and moments of peace.",
+  "Balance is key. Rest when you need it, and remember that asking for help is strength.",
+  "Your feelings are valid. It's okay to feel overwhelmed, and it's okay to take breaks.",
+  "Mindfulness can help us stay present and reduce stress in our daily lives.",
+];
+
+function getRandomPrompt(): string {
+  return TYPING_PROMPTS[Math.floor(Math.random() * TYPING_PROMPTS.length)];
+}
+
 export default function TypingCaptureForm({ onSubmitted, compact }: TypingCaptureFormProps) {
   const { theme } = useTheme();
+  const [prompt, setPrompt] = useState(getRandomPrompt());
   const [text, setText] = useState('');
   const [metrics, setMetrics] = useState<Partial<TypingPayload> | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -57,6 +74,10 @@ export default function TypingCaptureForm({ onSubmitted, compact }: TypingCaptur
 
   const handleSubmit = async () => {
     if (!metrics || metrics.avg_interval_ms == null || metrics.std_interval_ms == null) return;
+    if (text.trim().length < prompt.length * 0.5) {
+      toast.addToast('error', 'Please type at least half of the prompt to submit.');
+      return;
+    }
     setSubmitting(true);
     try {
       await api.postTyping({
@@ -68,6 +89,7 @@ export default function TypingCaptureForm({ onSubmitted, compact }: TypingCaptur
         late_night: metrics.late_night ?? false,
       });
       setText('');
+      setPrompt(getRandomPrompt());
       setIntervals([]);
       setBackspaces(0);
       setStartTime(null);
@@ -85,15 +107,25 @@ export default function TypingCaptureForm({ onSubmitted, compact }: TypingCaptur
   const form = (
     <>
       <p className={`text-body-sm mb-4 ${theme === 'dark' ? 'text-slate-300' : 'text-sentra-muted'}`}>
-        We never store what you type. Only timing patterns.
+        Type the text below. We never store what you type, only timing patterns to understand your wellbeing.
       </p>
+      <div className={`mb-4 p-4 rounded-2xl glass-input-dark border-2 ${theme === 'dark' ? 'border-white/10' : 'border-white/30'}`}>
+        <p className={`text-body leading-relaxed ${theme === 'dark' ? 'text-slate-200' : 'text-[#1e293b]'}`}>
+          {prompt}
+        </p>
+      </div>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type here…"
+        placeholder="Type the text above here…"
         className={`w-full min-h-[100px] p-4 rounded-2xl glass-input-dark focus:outline-none focus:ring-2 focus:ring-sentra-primary/40 focus:border-sentra-primary/40 resize-y text-body ${theme === 'dark' ? 'placeholder:text-slate-500' : 'placeholder:text-sentra-muted'}`}
       />
+      {text.length > 0 && (
+        <div className={`mt-2 text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-sentra-muted'}`}>
+          {text.length} / {prompt.length} characters
+        </div>
+      )}
       {metrics && (
         <div className="mt-3 flex flex-wrap gap-2">
           <span className={`inline-flex items-center px-3 py-1.5 rounded-xl glass-input-dark text-body-sm ${theme === 'dark' ? 'text-slate-300' : 'text-sentra-muted'}`}>

@@ -15,7 +15,7 @@ DRIVER_LABELS = {
 TEMPLATES = [
     "Your {drivers} {has_have} shifted from your usual pattern. These patterns can appear before mental fatigue.",
     "We're noticing changes in {drivers}. Small adjustments often help before things feel heavier.",
-    "Your baseline shows recent shifts in {drivers}. This is pattern awareness, not a diagnosis—you're in control.",
+    "Your baseline shows recent shifts in {drivers}. This is pattern awareness, not a diagnosis. You're in control.",
 ]
 
 

@@ -10,7 +10,7 @@ from app.models import Intervention
 ALL_INTERVENTIONS = [
     # Sleep-related
     "Pick one night for a hard cutoff, 30 minutes earlier.",
-    "Wind down 20 minutes before bed—no screens.",
+    "Wind down 20 minutes before bed. No screens.",
     "Try a 5-minute bedtime routine: dim lights, gentle music, or reading.",
     "Set a consistent wake time, even on weekends.",
     "Keep your phone out of the bedroom tonight.",
@@ -35,10 +35,10 @@ ALL_INTERVENTIONS = [
     "Write down one positive moment from today.",
     
     # Stress/Overwhelm
-    "Take a 5-minute break—step away from caregiving tasks.",
+    "Take a 5-minute break. Step away from caregiving tasks.",
     "Drink a glass of water and pause.",
     "Close your eyes and count to 10 slowly.",
-    "Do one thing at a time—prioritize what matters most.",
+    "Do one thing at a time. Prioritize what matters most.",
     "Ask for help with one task today.",
     "Set a timer for 15 minutes and do something just for you.",
     
@@ -54,7 +54,7 @@ ALL_INTERVENTIONS = [
 # Legacy mapping for fallback (when AI not available)
 ACTIONS_BY_DRIVER = {
     "sleep_hours": "Pick one night for a hard cutoff, 30 minutes earlier.",
-    "sleep_quality": "Wind down 20 minutes before bed—no screens.",
+    "sleep_quality": "Wind down 20 minutes before bed. No screens.",
     "activity_minutes": "5-minute walk.",
     "mood_value": "3-minute brain dump prompt.",
     "typing_avg_interval_ms": "60-second breathing reset.",

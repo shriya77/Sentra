@@ -62,7 +62,7 @@ export default function WellbeingScoreCard({ score }: WellbeingScoreCardProps) {
               className="text-7xl font-bold text-sentra-primary tabular-nums leading-none"
               aria-label={isEmpty ? 'Wellbeing score not yet available' : `Wellbeing score ${displayValue} out of 100`}
             >
-              {displayValue ?? '—'}
+              {displayValue ?? '-'}
             </span>
           </div>
           

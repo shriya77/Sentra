@@ -56,7 +56,7 @@ export default function Login() {
           Welcome back
         </h1>
         <p className="text-body-sm text-slate-300 text-center mb-6">
-          Sign in — for home caregivers
+          Sign in for home caregivers
         </p>
 
         <button

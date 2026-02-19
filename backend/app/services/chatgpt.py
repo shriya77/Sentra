@@ -88,7 +88,7 @@ Generate a brief, empathetic insight (2-3 sentences max) that:
 - Speaks directly to someone caring for a patient at home
 - Is warm and understanding
 
-Write only the insight text, no labels or formatting."""
+IMPORTANT: Use periods or commas instead of em dashes. Never use em dashes (—) or en dashes (–). Write only the insight text, no labels or formatting."""
 
     try:
         response = await client.chat.completions.create(
@@ -102,6 +102,8 @@ Write only the insight text, no labels or formatting."""
         )
         
         insight_text = response.choices[0].message.content.strip()
+        # Remove em dashes and replace with periods or commas
+        insight_text = insight_text.replace('—', '. ').replace('–', '. ')
         
         return {
             "short_insight": insight_text,
@@ -132,7 +134,7 @@ async def generate_signal_description(signal_type: str, user_data: dict) -> str:
         fallbacks = {
             "sleep": "From your check-in. Rest matters when you're caring for someone at home.",
             "activity": "Movement from check-in. Even short breaks help when you're on care duty.",
-            "typing": "Rhythm from typing—no content stored. Helps us sense stress and load.",
+            "typing": "Rhythm from typing. No content stored. Helps us sense stress and load.",
         }
         return fallbacks.get(signal_type, "Tracking your patterns.")
     
@@ -151,6 +153,7 @@ Their recent sleep: {data_str}
 Write a warm, supportive sentence (max 20 words) that:
 - Mentions sleep/rest in the context of caregiving
 - Is encouraging and understanding
+- Use periods or commas, never em dashes (—) or en dashes (–)
 - No labels or formatting, just the sentence."""
     
     elif signal_type == "activity":
@@ -176,6 +179,7 @@ Write a warm, supportive sentence (max 20 words) that:
 - Mentions movement/activity in the context of caregiving
 - Is encouraging and understanding
 - Does NOT mention specific numbers or minutes
+- Use periods or commas, never em dashes (—) or en dashes (–)
 - No labels or formatting, just the sentence."""
     
     else:  # typing
@@ -191,6 +195,7 @@ Write a warm, supportive sentence (max 20 words) that:
 - Mentions typing rhythm in the context of caregiving stress
 - Reassures that no content is stored
 - Is encouraging and understanding
+- Use periods or commas, never em dashes (—) or en dashes (–)
 - No labels or formatting, just the sentence."""
     
     try:
@@ -204,14 +209,17 @@ Write a warm, supportive sentence (max 20 words) that:
             temperature=0.7,
         )
         
-        return response.choices[0].message.content.strip()
+        description = response.choices[0].message.content.strip()
+        # Remove em dashes and replace with periods or commas
+        description = description.replace('—', '. ').replace('–', '. ')
+        return description
     except Exception as e:
         print(f"ChatGPT API error for signal {signal_type}: {e}")
         # Fallback
         fallbacks = {
             "sleep": "From your check-in. Rest matters when you're caring for someone at home.",
             "activity": "Movement from check-in. Even short breaks help when you're on care duty.",
-            "typing": "Rhythm from typing—no content stored. Helps us sense stress and load.",
+            "typing": "Rhythm from typing. No content stored. Helps us sense stress and load.",
         }
         return fallbacks.get(signal_type, "Tracking your patterns.")
 
@@ -306,6 +314,7 @@ Instructions:
 - Prioritize interventions that match their specific needs (e.g., if sleep is an issue, choose sleep-related steps)
 - Return ONLY the exact text of the selected interventions, one per line
 - Do not number them or add any formatting
+- Never use em dashes (—) or en dashes (–). Use periods or commas instead.
 - If no interventions seem relevant, choose the most generally supportive ones"""
 
     try:
@@ -320,6 +329,8 @@ Instructions:
         )
         
         selected_text = response.choices[0].message.content.strip()
+        # Remove em dashes from AI-generated text
+        selected_text = selected_text.replace('—', '. ').replace('–', '. ')
         # Parse the response - split by newlines and filter to valid interventions
         selected_lines = [line.strip() for line in selected_text.split('\n') if line.strip()]
         # Match selected lines to actual interventions (handle slight variations)

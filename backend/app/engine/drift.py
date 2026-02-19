@@ -221,7 +221,7 @@ def compute_risk_for_date(
     baseline = _baseline_stats(all_rows, baseline_days) if all_rows else {}
 
     if not baseline:
-        # First day(s): no baseline yet — score from today's check-in only
+        # First day(s): no baseline yet, score from today's check-in only
         wellbeing, status, drivers = _first_day_wellbeing(day_row)
         confidence = "low"
     else:
