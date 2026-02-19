@@ -1,0 +1,15 @@
+# Env and secrets (do not commit)
+.env
+.env.local
+*service*account*.json
+*firebase*adminsdk*.json
+firebase-service-account.json
+
+# SQLite DB (optional; remove if you want to track it)
+data/*.db
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/

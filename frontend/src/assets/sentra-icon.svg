@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="headGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d9488"/>
+      <stop offset="100%" style="stop-color:#0f766e"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Circular head silhouette -->
+  <circle cx="32" cy="28" r="14" fill="url(#headGrad)" opacity="0.95"/>
+  <ellipse cx="32" cy="42" rx="14" ry="10" fill="url(#headGrad)" opacity="0.95"/>
+  <!-- Glowing heart -->
+  <g filter="url(#glow)">
+    <path d="M32 38c-2-2-6-5-6-8 0-2 1.5-3.5 3.5-3.5 1.2 0 2.3.6 2.9 1.5.6-.9 1.7-1.5 2.9-1.5 2 0 3.5 1.5 3.5 3.5 0 3-4 6-6 8z" fill="#f472b6" opacity="0.9"/>
+  </g>
+  <!-- Particles -->
+  <circle cx="18" cy="20" r="2" fill="#5eead4" opacity="0.8"/>
+  <circle cx="46" cy="22" r="1.5" fill="#5eead4" opacity="0.7"/>
+  <circle cx="24" cy="36" r="1" fill="#99f6e4" opacity="0.8"/>
+  <circle cx="40" cy="34" r="1.2" fill="#99f6e4" opacity="0.8"/>
+</svg>

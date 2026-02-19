@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme support: dark (cosmic) and light (teal/cyan) */
+@layer base {
+  body {
+    @apply antialiased min-h-screen font-sans;
+  }
+  
+  /* Dark mode (cosmic theme) */
+  [data-theme="dark"] body {
+    @apply text-slate-100;
+    background: #0a0e27; /* Deep space blue-black */
+  }
+  
+  /* Light mode (original teal/cyan theme) */
+  [data-theme="light"] body {
+    @apply text-[#334155];
+    background: linear-gradient(145deg, #f0fdfa 0%, #ccfbf1 28%, #e0f2fe 50%, #cffafe 72%, #ecfeff 100%);
+    background-attachment: fixed;
+  }
+  
+  [data-theme="light"] #root::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1.2px circle at 18% 22%, rgba(255,255,255,0.7) 100%, transparent),
+      radial-gradient(1px circle at 82% 15%, rgba(204,251,241,0.4) 100%, transparent),
+      radial-gradient(1.5px circle at 25% 75%, rgba(255,255,255,0.5) 100%, transparent),
+      radial-gradient(1px circle at 70% 68%, rgba(207,250,254,0.35) 100%, transparent),
+      radial-gradient(1.2px circle at 50% 45%, rgba(255,255,255,0.45) 100%, transparent);
+    background-size: 280px 280px;
+    opacity: 0.95;
+    z-index: 0;
+  }
+  
+  #root {
+    @apply min-h-screen relative;
+  }
+  main {
+    @apply relative z-10;
+  }
+  
+  [data-theme="dark"] a {
+    @apply text-sentra-cosmic-accent no-underline;
+  }
+  [data-theme="light"] a {
+    @apply text-sentra-primary no-underline;
+  }
+  a:hover {
+    @apply opacity-90;
+  }
+}
+
+/* Glassmorphism: light theme (for fallback) */
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/60;
+    box-shadow: 0 4px 24px -4px rgba(15, 118, 110, 0.08), 0 2px 12px -2px rgba(15, 118, 110, 0.04);
+  }
+  .glass-hover:hover {
+    box-shadow: 0 12px 40px -8px rgba(15, 118, 110, 0.1), 0 4px 16px -4px rgba(15, 118, 110, 0.04);
+    @apply bg-white/80;
+  }
+  .glass-input {
+    @apply bg-white/60 backdrop-blur-md border border-white/50;
+  }
+  
+  /* Dark cosmic glassmorphism for video background */
+  [data-theme="dark"] .glass-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10;
+    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5), 0 4px 16px -2px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+  [data-theme="light"] .glass-dark {
+    @apply bg-white/70 backdrop-blur-xl border border-white/60;
+    box-shadow: 0 4px 24px -4px rgba(15, 118, 110, 0.08), 0 2px 12px -2px rgba(15, 118, 110, 0.04);
+  }
+  
+  [data-theme="dark"] .glass-hover-dark:hover {
+    box-shadow: 0 12px 48px -8px rgba(0, 0, 0, 0.6), 0 6px 24px -4px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+    @apply bg-black/50 border-white/15;
+  }
+  [data-theme="light"] .glass-hover-dark:hover {
+    box-shadow: 0 12px 40px -8px rgba(15, 118, 110, 0.1), 0 4px 16px -4px rgba(15, 118, 110, 0.04);
+    @apply bg-white/80;
+  }
+  
+  [data-theme="dark"] .glass-input-dark {
+    @apply bg-black/30 backdrop-blur-md border border-white/10 text-slate-100;
+  }
+  [data-theme="light"] .glass-input-dark {
+    @apply bg-white/60 backdrop-blur-md border border-white/50 text-[#334155];
+  }
+  [data-theme="dark"] .glass-input-dark::placeholder {
+    @apply text-slate-400;
+  }
+  [data-theme="light"] .glass-input-dark::placeholder {
+    @apply text-sentra-muted;
+  }
+}
+
+.gradient-text {
+  background: linear-gradient(120deg, #60a5fa 0%, #a78bfa 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
