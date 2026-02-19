@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Moon, Activity, Keyboard, TrendingDown, Minus, AlertCircle, Lightbulb } from 'lucide-react';
+import { Moon, Activity, Keyboard, TrendingDown, Minus, AlertCircle, Lightbulb, ArrowUp, ArrowDown, ArrowRight } from 'lucide-react';
 import { api } from '../lib/api';
 import { useTheme } from '../contexts/ThemeContext';
 import { DashboardSkeleton } from '../components/Skeleton';
@@ -28,6 +28,59 @@ function MomentumRow({ momentum }: { momentum: string }) {
       <div>
         <p className={`font-medium text-sm ${theme === 'dark' ? 'text-slate-200' : 'text-[#1e293b]'}`}>{config.label}</p>
         <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-sentra-muted'}`}>Pattern over recent days</p>
+      </div>
+    </div>
+  );
+}
+
+function RiskMomentumCard({ momentumLabel, momentumStrength, confidence }: { momentumLabel?: string | null; momentumStrength?: string | null; confidence?: string | null }) {
+  const { theme } = useTheme();
+  
+  if (!momentumLabel) return null;
+  
+  const config =
+    momentumLabel === 'Rising'
+      ? { 
+          label: momentumStrength === 'rapid' ? 'Rising (rapid)' : 'Rising (slow)', 
+          Icon: ArrowUp, 
+          color: theme === 'dark' ? 'text-sentra-high' : 'text-sentra-high', 
+          bg: theme === 'dark' ? 'bg-sentra-high/20' : 'bg-sentra-high/10',
+          desc: 'Risk trajectory is increasing'
+        }
+      : momentumLabel === 'Recovering'
+        ? { 
+            label: momentumStrength === 'rapid' ? 'Recovering (rapid)' : 'Recovering (slow)', 
+            Icon: ArrowDown, 
+            color: theme === 'dark' ? 'text-sentra-stable' : 'text-sentra-stable', 
+            bg: theme === 'dark' ? 'bg-sentra-stable/20' : 'bg-sentra-stable/10',
+            desc: 'Wellbeing is improving'
+          }
+        : { 
+            label: 'Stable', 
+            Icon: ArrowRight, 
+            color: theme === 'dark' ? 'text-slate-300' : 'text-sentra-muted', 
+            bg: theme === 'dark' ? 'bg-slate-700/30' : 'bg-slate-200/50',
+            desc: 'Trajectory is steady'
+          };
+  
+  const Icon = config.Icon;
+  
+  return (
+    <div className={`rounded-2xl glass-dark p-4 border ${theme === 'dark' ? 'border-white/20' : 'border-white/60'}`}>
+      <div className="flex items-center gap-3">
+        <div className={`p-2.5 rounded-xl ${config.bg}`}>
+          <Icon className={`w-5 h-5 ${config.color}`} />
+        </div>
+        <div className="flex-1">
+          <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${theme === 'dark' ? 'text-slate-400' : 'text-[#64748b]'}`}>Risk momentum</p>
+          <p className={`text-lg font-semibold ${theme === 'dark' ? 'text-slate-100' : 'text-[#1e293b]'}`}>{config.label}</p>
+          <p className={`text-xs mt-0.5 ${theme === 'dark' ? 'text-slate-500' : 'text-sentra-muted'}`}>{config.desc}</p>
+          {momentumLabel === 'Rising' && (
+            <p className={`text-xs mt-1 italic ${theme === 'dark' ? 'text-slate-400' : 'text-sentra-muted'}`}>
+              Sentra predicts decline before it becomes visible.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -93,14 +146,31 @@ export default function Dashboard() {
         <p className={`text-body-sm mt-1 ${theme === 'dark' ? 'text-slate-300' : 'text-sentra-muted'}`}>Your caregiver wellbeing at a glance</p>
       </div>
       
-      <div className="mb-10 animate-[slideUp_0.8s_ease-out_0.1s_both]">
+      <div className="mb-6 animate-[slideUp_0.8s_ease-out_0.1s_both]">
         <WellbeingScoreCard score={score} />
       </div>
+      
+      {/* Risk Momentum Card - Always show if available */}
+      {score?.momentum_label && (
+        <div className="mb-6 animate-[slideUp_0.8s_ease-out_0.15s_both]">
+          <RiskMomentumCard 
+            momentumLabel={score.momentum_label} 
+            momentumStrength={score.momentum_strength}
+            confidence={score.confidence}
+          />
+        </div>
+      )}
 
       {/* Insight card - prominent, always visible if exists */}
       {hasInsight && (
         <div className="mb-6 animate-[slideUp_0.8s_ease-out_0.2s_both]">
-          <div className="rounded-2xl glass-dark p-5 border border-white/20">
+          <div className={`rounded-2xl glass-dark p-5 border ${
+            score?.status === 'Watch' 
+              ? 'border-sentra-primary/40 shadow-lg shadow-sentra-primary/10' 
+              : score?.status === 'High'
+                ? 'border-sentra-high/40 shadow-lg shadow-sentra-high/15'
+                : 'border-white/20'
+          }`}>
             <h3 className={`text-sm font-semibold uppercase tracking-wide mb-4 ${theme === 'dark' ? 'text-slate-300' : 'text-[#475569]'}`}>What we're noticing</h3>
             
             {/* What we noticed */}
@@ -121,6 +191,35 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ) : null}
+                  
+                  {/* Driver Contributions - Primary Drivers Section */}
+                  {score?.driver_contributions && score.driver_contributions.length > 0 && (
+                    <div className={`mb-3 pt-3 border-t ${theme === 'dark' ? 'border-white/10' : 'border-white/30'}`}>
+                      <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${theme === 'dark' ? 'text-slate-300' : 'text-[#475569]'}`}>Primary drivers</p>
+                      <div className="flex flex-wrap gap-2">
+                        {score.driver_contributions.slice(0, 3).map((contrib, idx) => (
+                          <span 
+                            key={idx} 
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${
+                              theme === 'dark' 
+                                ? 'bg-slate-800/60 text-slate-200 border border-slate-700/60' 
+                                : 'bg-slate-100 text-[#334155] border border-slate-300'
+                            }`}
+                          >
+                            <span>{contrib.label}</span>
+                            {contrib.direction === 'up' ? (
+                              <ArrowUp className="w-3.5 h-3.5 text-sentra-high" />
+                            ) : (
+                              <ArrowDown className="w-3.5 h-3.5 text-sentra-stable" />
+                            )}
+                            <span className={`font-semibold ${contrib.direction === 'up' ? 'text-sentra-high' : 'text-sentra-stable'}`}>
+                              {contrib.contribution}
+                            </span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <p className={`text-body-sm leading-relaxed ${theme === 'dark' ? 'text-slate-200' : 'text-[#334155]'}`}>
                     {insight.short_insight}
                   </p>

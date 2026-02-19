@@ -28,7 +28,8 @@ export default function Trends() {
     );
   }
 
-  const chartData = data ?? [];
+  const chartData = data?.data ?? [];
+  const projection = data?.projection ?? [];
   const hasData = chartData.length > 0;
 
   return (
@@ -42,7 +43,7 @@ export default function Trends() {
       {hasData ? (
         <>
           <div className="rounded-3xl glass p-6">
-            <TrendsChart data={chartData} />
+            <TrendsChart data={chartData} projection={projection} />
           </div>
           <div className="flex flex-wrap gap-3 text-xs text-sentra-muted">
             {chartData.map((d) => (

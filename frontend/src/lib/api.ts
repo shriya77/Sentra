@@ -37,7 +37,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   getScoreToday: () => request<ScoreToday>('/api/score/today'),
-  getTrends: (days = 14) => request<TrendDay[]>(`/api/trends?days=${days}`),
+  getTrends: (days = 14) => request<TrendsResponse>(`/api/trends?days=${days}`),
   getInsightToday: () => request<InsightToday>('/api/insight/today'),
   getInterventionsToday: () => request<InterventionItem[]>('/api/interventions/today'),
   postInterventionComplete: (intervention_id: string, date?: string) =>
@@ -70,9 +70,19 @@ export interface ScoreToday {
   wellbeing_score: number | null;
   status: string | null;
   momentum: string | null;
+  momentum_label?: string | null;
+  momentum_strength?: string | null;
   confidence: string | null;
   drivers: string[];
+  driver_contributions?: DriverContribution[];
   date?: string;
+}
+
+export interface DriverContribution {
+  key: string;
+  label: string;
+  direction: "up" | "down";
+  contribution: number;
 }
 
 export interface TrendDay {
@@ -80,7 +90,19 @@ export interface TrendDay {
   wellbeing_score: number;
   status: string;
   momentum: string;
+  momentum_label?: string;
+  momentum_strength?: string;
   confidence: string;
+}
+
+export interface TrendsResponse {
+  data: TrendDay[];
+  projection?: ProjectionPoint[];
+}
+
+export interface ProjectionPoint {
+  date: string;
+  projected_score: number;
 }
 
 export interface InsightToday {
@@ -122,6 +144,9 @@ export interface OrgSummary {
   counts: { Stable?: number; Watch?: number; High?: number };
   average_risk: number;
   momentum_distribution: { stable?: number; slow_rise?: number; rapid_rise?: number };
+  momentum_counts?: { Rising?: number; Stable?: number; Recovering?: number };
+  system_strain?: "Low" | "Moderate" | "Rising";
+  top_org_driver?: string | null;
   total_users: number;
 }
 

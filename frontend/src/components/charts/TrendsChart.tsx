@@ -8,17 +8,32 @@ import {
   ResponsiveContainer,
   ReferenceArea,
 } from 'recharts';
-import type { TrendDay } from '../../lib/api';
+import type { TrendDay, ProjectionPoint } from '../../lib/api';
 
 interface TrendsChartProps {
   data: TrendDay[];
+  projection?: ProjectionPoint[];
 }
 
-const chartData = (data: TrendDay[]) =>
-  data.map((d) => ({
+const chartData = (data: TrendDay[], projection?: ProjectionPoint[]) => {
+  const mainData = data.map((d) => ({
     ...d,
     shortDate: d.date.slice(5),
+    isProjection: false,
   }));
+  
+  if (projection && projection.length > 0) {
+    const projData = projection.map((p) => ({
+      date: p.date,
+      shortDate: p.date.slice(5),
+      wellbeing_score: p.projected_score,
+      isProjection: true,
+    }));
+    return [...mainData, ...projData];
+  }
+  
+  return mainData;
+};
 
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
@@ -30,8 +45,9 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
   );
 }
 
-export default function TrendsChart({ data }: TrendsChartProps) {
-  const plotData = chartData(data);
+export default function TrendsChart({ data, projection }: TrendsChartProps) {
+  const plotData = chartData(data, projection);
+  
   return (
     <div className="h-[320px] w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -72,12 +88,36 @@ export default function TrendsChart({ data }: TrendsChartProps) {
             dataKey="wellbeing_score"
             stroke="#0f766e"
             strokeWidth={2}
-            dot={{ fill: '#0f766e', strokeWidth: 0, r: 3 }}
+            dot={(props: any) => {
+              if (props.payload?.isProjection) return null;
+              return <circle cx={props.cx} cy={props.cy} r={3} fill="#0f766e" />;
+            }}
             activeDot={{ r: 5, fill: '#0f766e', stroke: '#fff', strokeWidth: 2 }}
             name="Wellbeing"
+            connectNulls={false}
+            isAnimationActive={true}
           />
+          {projection && projection.length > 0 && (
+            <Line
+              type="monotone"
+              dataKey="wellbeing_score"
+              stroke="#64748b"
+              strokeWidth={2}
+              strokeDasharray="5 5"
+              dot={(props: any) => {
+                if (!props.payload?.isProjection) return null;
+                return <circle cx={props.cx} cy={props.cy} r={2} fill="#64748b" />;
+              }}
+              name="Projected"
+              connectNulls={true}
+              isAnimationActive={true}
+            />
+          )}
         </LineChart>
       </ResponsiveContainer>
+      {projection && projection.length > 0 && (
+        <p className="text-xs text-sentra-muted mt-2 text-center">Projected (if trend continues)</p>
+      )}
     </div>
   );
 }

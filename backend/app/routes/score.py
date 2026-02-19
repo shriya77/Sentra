@@ -11,10 +11,19 @@ router = APIRouter(prefix="/api", tags=["score"])
 
 @router.get("/score/today")
 def score_today(uid: str = Depends(get_firebase_uid), db: Session = Depends(get_db)):
-    data = get_today_score(db, uid)
-    if not data:
-        return {"wellbeing_score": None, "status": None, "momentum": None, "confidence": None, "drivers": []}
-    return data
+  data = get_today_score(db, uid)
+  if not data:
+    return {
+      "wellbeing_score": None, 
+      "status": None, 
+      "momentum": None, 
+      "momentum_label": None,
+      "momentum_strength": None,
+      "confidence": None, 
+      "drivers": [],
+      "driver_contributions": []
+    }
+  return data
 
 
 @router.get("/trends")

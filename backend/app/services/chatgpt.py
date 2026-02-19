@@ -81,39 +81,87 @@ The caregiver's current wellbeing status is: {status}
 Recent changes detected in: {driver_str}
 Today's check-in data: {context_str}
 
-Generate a brief, empathetic insight (2-3 sentences max) that:
-- Acknowledges what we're noticing in their patterns
-- Is supportive and non-alarming
-- Focuses on pattern awareness, not diagnosis
-- Speaks directly to someone caring for a patient at home
-- Is warm and understanding
+Generate:
+1. A brief, empathetic insight (2-3 sentences max) that:
+   - Acknowledges what we're noticing in their patterns
+   - Is supportive and non-alarming
+   - Focuses on pattern awareness, not diagnosis
+   - Speaks directly to someone caring for a patient at home
+   - Is warm and understanding
 
-IMPORTANT: Use periods or commas instead of em dashes. Never use em dashes (—) or en dashes (–). Write only the insight text, no labels or formatting."""
+2. Two specific, actionable micro-actions (1 short sentence each) that:
+   - Are personalized based on their current data and drivers
+   - Are small, achievable steps (under 5 minutes when possible)
+   - Directly address the drivers we detected
+   - Are practical for someone caring for a patient at home
+   - Vary based on their specific situation (don't repeat the same actions every time)
+
+Format your response as JSON:
+{{
+  "insight": "your insight text here",
+  "actions": ["first action", "second action"]
+}}
+
+IMPORTANT: 
+- Use periods or commas instead of em dashes. Never use em dashes (—) or en dashes (–).
+- Make actions specific and personalized to their data.
+- Vary the actions based on their current situation."""
 
     try:
         response = await client.chat.completions.create(
             model="gpt-4o-mini",  # Using mini for cost efficiency
             messages=[
-                {"role": "system", "content": "You are a supportive wellbeing assistant for home caregivers."},
+                {"role": "system", "content": "You are a supportive wellbeing assistant for home caregivers. Always respond with valid JSON."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=150,
-            temperature=0.7,
+            max_tokens=300,
+            temperature=0.8,  # Higher temperature for more variety
+            response_format={"type": "json_object"},
         )
         
-        insight_text = response.choices[0].message.content.strip()
+        import json
+        try:
+            result = json.loads(response.choices[0].message.content.strip())
+        except json.JSONDecodeError:
+            # If JSON parsing fails, try to extract from text
+            content = response.choices[0].message.content.strip()
+            # Fallback: try to find JSON-like structure or parse as text
+            print(f"Failed to parse JSON, content: {content[:200]}")
+            from app.engine.insight import suggest_actions
+            fallback_result = {
+                "short_insight": content.split('\n')[0] if content else "We're noticing some patterns in your wellbeing.",
+                "drivers": driver_names,
+                "suggested_actions": suggest_actions(drivers)[:2],
+            }
+            return fallback_result
+        
+        insight_text = result.get("insight", "").strip()
+        actions = result.get("actions", [])
+        
         # Remove em dashes and replace with periods or commas
         insight_text = insight_text.replace('—', '. ').replace('–', '. ')
+        actions = [a.replace('—', '. ').replace('–', '. ').strip() for a in actions if a.strip()]
+        
+        # Ensure we have at least one action, fallback if needed
+        if not actions:
+            from app.engine.insight import suggest_actions
+            actions = suggest_actions(drivers)[:2]
         
         return {
             "short_insight": insight_text,
             "drivers": driver_names,
+            "suggested_actions": actions[:2],  # Ensure max 2 actions
         }
     except Exception as e:
         # Fallback to template-based on error
         print(f"ChatGPT API error: {e}")
         from app.engine.insight import generate_insight as fallback_insight
-        return fallback_insight(drivers, status)
+        fallback_result = fallback_insight(drivers, status)
+        # Ensure suggested_actions is included in fallback
+        if "suggested_actions" not in fallback_result:
+            from app.engine.insight import suggest_actions
+            fallback_result["suggested_actions"] = suggest_actions(drivers)[:2]
+        return fallback_result
 
 
 async def generate_signal_description(signal_type: str, user_data: dict) -> str:

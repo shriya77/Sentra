@@ -80,28 +80,36 @@ export default function VoiceCard({ insightText, isPlaying, onPlayingChange, com
           {canPlay && (
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={isPlaying ? handlePause : handlePlay}
-                  className={`
-                    flex items-center justify-center w-12 h-12 rounded-2xl font-medium shadow-glass
-                    transition-all hover:scale-105
-                    ${isPlaying
-                      ? 'bg-sentra-watch/15 text-sentra-watch'
-                      : 'bg-sentra-primary text-white'}
-                  `}
-                  aria-label={isPlaying ? 'Pause' : 'Play'}
-                >
-                  {isPlaying ? (
-                    <Pause className="w-5 h-5" />
-                  ) : (
-                    <Play className="w-5 h-5 ml-0.5" />
+                <div className="relative">
+                  {isPlaying && (
+                    <div className="absolute inset-0 rounded-2xl bg-sentra-primary/20 animate-pulse-subtle blur-md -z-10" />
                   )}
-                </button>
+                  <button
+                    type="button"
+                    onClick={isPlaying ? handlePause : handlePlay}
+                    className={`
+                      relative flex items-center justify-center w-12 h-12 rounded-2xl font-medium shadow-glass
+                      transition-all hover:scale-105 z-0
+                      ${isPlaying
+                        ? 'bg-sentra-primary text-white ring-2 ring-sentra-primary/30'
+                        : 'bg-sentra-primary text-white'}
+                    `}
+                    aria-label={isPlaying ? 'Pause' : 'Play'}
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-5 h-5" />
+                    ) : (
+                      <Play className="w-5 h-5 ml-0.5" />
+                    )}
+                  </button>
+                </div>
                 {isPlaying && (
                   <span className="inline-flex items-center gap-1 text-sentra-muted text-xs">
-                    <Sparkles className="w-3.5 h-3.5 text-sentra-accent animate-pulse" />
-                    Playing
+                    <span className="relative">
+                      <span className="absolute inset-0 w-2 h-2 rounded-full bg-sentra-primary/40 animate-ping" />
+                      <span className="relative inline-block w-2 h-2 rounded-full bg-sentra-primary" />
+                    </span>
+                    <span>Playing</span>
                   </span>
                 )}
               </div>
@@ -127,5 +135,15 @@ export default function VoiceCard({ insightText, isPlaying, onPlayingChange, com
       )}
     </>
   );
-  return compact ? content : <Card title="Voice check-in">{content}</Card>;
+  const titleContent = isPlaying ? (
+    <span className="flex items-center gap-2">
+      <span>VOICE REFLECTION</span>
+      <span className="relative">
+        <span className="absolute inset-0 w-1.5 h-1.5 rounded-full bg-sentra-primary/60 animate-ping" />
+        <span className="relative inline-block w-1.5 h-1.5 rounded-full bg-sentra-primary animate-pulse-subtle" />
+      </span>
+    </span>
+  ) : "VOICE REFLECTION";
+  
+  return compact ? content : <Card title={titleContent}>{content}</Card>;
 }

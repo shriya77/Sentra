@@ -2,7 +2,7 @@ import { type ReactNode } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface CardProps {
-  title?: string;
+  title?: string | ReactNode;
   children: ReactNode;
   className?: string;
 }

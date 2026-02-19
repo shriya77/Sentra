@@ -11,10 +11,10 @@ function StatusPill({ status }: { status: string | null }) {
   return (
     <span
       className={`
-        inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+        inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold
         ${status === 'Stable' ? 'bg-sentra-stable/12 text-sentra-primary-deep' : ''}
         ${status === 'Watch' ? 'bg-sentra-watch/12 text-sentra-watch' : ''}
-        ${status === 'High' ? 'bg-sentra-high/12 text-sentra-high animate-pulse-soft' : ''}
+        ${status === 'High' ? 'bg-red-100 text-red-700 border border-red-400/60 animate-pulse-red' : ''}
       `}
     >
       {status}
@@ -52,10 +52,38 @@ export default function WellbeingScoreCard({ score }: WellbeingScoreCardProps) {
   }, [value]);
 
   const isEmpty = value === null;
+  const status = score?.status;
+  const isWatch = status === 'Watch';
+  const isHigh = status === 'High';
 
   return (
-    <Card>
-      <div className="flex items-center gap-5">
+    <Card className={`relative transition-all duration-500 ${
+      isWatch 
+        ? 'ring-2 ring-sentra-primary/50 ring-offset-0 shadow-xl shadow-sentra-primary/25' 
+        : isHigh 
+          ? 'ring-2 ring-sentra-high/60 ring-offset-0 shadow-xl shadow-sentra-high/30' 
+          : ''
+    }`}>
+      {/* Subtle glow effect for Watch/High (no pulse on box; High status pill pulses instead) */}
+      {(isWatch || isHigh) && (
+        <>
+          <div 
+            className={`absolute inset-0 rounded-3xl -z-10 ${
+              isWatch 
+                ? 'bg-sentra-primary/20 blur-2xl' 
+                : 'bg-sentra-high/25 blur-2xl'
+            }`}
+          />
+          <div 
+            className={`absolute -inset-1 rounded-3xl -z-20 opacity-50 ${
+              isWatch 
+                ? 'bg-sentra-primary/10 blur-3xl' 
+                : 'bg-sentra-high/15 blur-3xl'
+            }`}
+          />
+        </>
+      )}
+      <div className="flex items-center gap-5 relative z-0">
           {/* Score number - no box, just the number */}
           <div className="flex-shrink-0">
             <span
@@ -72,13 +100,13 @@ export default function WellbeingScoreCard({ score }: WellbeingScoreCardProps) {
             <div className="flex items-center gap-2.5 flex-wrap">
               <StatusPill status={score?.status ?? null} />
               {score?.confidence && (
-                <span className={`inline-flex items-center gap-1.5 text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-[#475569]'}`}>
+                <span className={`inline-flex items-center gap-1.5 text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-[#1e293b]'}`}>
                   <span
                     className="relative cursor-help"
                     onMouseEnter={() => setShowConfidenceTooltip(true)}
                     onMouseLeave={() => setShowConfidenceTooltip(false)}
                   >
-                    <HelpCircle className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-slate-400' : 'text-sentra-muted'}`} aria-hidden />
+                    <HelpCircle className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-slate-400' : 'text-[#475569]'}`} aria-hidden />
                     {showConfidenceTooltip && (
                       <span
                         role="tooltip"
@@ -89,7 +117,7 @@ export default function WellbeingScoreCard({ score }: WellbeingScoreCardProps) {
                       </span>
                     )}
                   </span>
-                  <span className="text-xs">{score.confidence} confidence</span>
+                  <span className={`text-xs font-semibold ${theme === 'dark' ? 'text-slate-300' : 'text-[#1e293b]'}`}>{score.confidence} confidence</span>
                 </span>
               )}
             </div>
