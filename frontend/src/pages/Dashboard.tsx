@@ -4,7 +4,6 @@ import { Moon, Activity, Keyboard, TrendingDown, Minus } from 'lucide-react';
 import { api } from '../lib/api';
 import { useTheme } from '../contexts/ThemeContext';
 import { DashboardSkeleton } from '../components/Skeleton';
-import DashboardSection from '../components/DashboardSection';
 import WellbeingScoreCard from '../components/cards/WellbeingScoreCard';
 import SignalCard from '../components/cards/SignalCard';
 import VoiceCard from '../components/cards/VoiceCard';
