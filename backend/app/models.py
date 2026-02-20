@@ -30,6 +30,30 @@ class DailySummary(Base):
     typing_backspace_ratio = Column(Float, nullable=True)
     typing_fragmentation = Column(Float, nullable=True)  # pauses > 2s count
     typing_late_night = Column(Boolean, nullable=True)
+    # Voice strain (openSMILE eGeMAPS baseline drift)
+    voice_strain_score = Column(Integer, nullable=True)  # 0-100
+    voice_strain_level = Column(String(32), nullable=True)  # low, medium, high
+    voice_confidence = Column(String(32), nullable=True)  # low, medium, high
+    # Optional: sentiment from speech (no transcript stored)
+    speech_sentiment_compound = Column(Float, nullable=True)  # -1 to 1
+    speech_sentiment_label = Column(String(32), nullable=True)  # positive, neutral, negative
+    __table_args__ = ({"sqlite_autoincrement": True},)
+
+
+class VoiceSession(Base):
+    """Raw voice submissions; used for eGeMAPS baseline and daily voice strain."""
+    __tablename__ = "voice_sessions"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String(64), ForeignKey("users.id"), nullable=False, index=True)
+    date = Column(Date, nullable=False, index=True)
+    duration_sec = Column(Float, nullable=False)
+    voice_features = Column(JSON, nullable=True)  # eGeMAPS functionals dict
+    voice_strain_score = Column(Integer, nullable=True)
+    voice_strain_level = Column(String(32), nullable=True)
+    voice_confidence = Column(String(32), nullable=True)
+    speech_sentiment_compound = Column(Float, nullable=True)
+    speech_sentiment_label = Column(String(32), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
     __table_args__ = ({"sqlite_autoincrement": True},)
 
 

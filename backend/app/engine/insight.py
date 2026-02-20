@@ -10,6 +10,7 @@ DRIVER_LABELS = {
     "typing_std_ms": "typing consistency",
     "typing_backspace_ratio": "typing friction",
     "typing_fragmentation": "focus fragmentation",
+    "voice_strain_score": "voice strain",
 }
 
 TEMPLATES = [

@@ -17,6 +17,8 @@ DRIVER_LABELS = {
     "typing_std_ms": "typing consistency",
     "typing_backspace_ratio": "typing friction",
     "typing_fragmentation": "focus fragmentation",
+    "voice_strain_score": "voice strain",
+    "speech_sentiment_compound": "mood from words",
 }
 
 EPS = 1e-6
@@ -25,14 +27,16 @@ TREND_DAYS = 7
 
 # Weights for risk (higher deviation = worse). Invert so "good" direction raises wellbeing.
 WEIGHTS = {
-    "sleep_hours": 0.15,       # too low or too high
-    "sleep_quality": 0.15,
-    "activity_minutes": 0.15,
-    "mood_value": 0.2,
-    "typing_avg_interval_ms": 0.12,
-    "typing_std_ms": 0.08,
-    "typing_backspace_ratio": 0.08,
-    "typing_fragmentation": 0.07,
+    "sleep_hours": 0.14,
+    "sleep_quality": 0.14,
+    "activity_minutes": 0.14,
+    "mood_value": 0.18,
+    "typing_avg_interval_ms": 0.11,
+    "typing_std_ms": 0.07,
+    "typing_backspace_ratio": 0.07,
+    "typing_fragmentation": 0.06,
+    "voice_strain_score": 0.09,  # higher score = more strain = worse
+    "speech_sentiment_compound": 0.06,  # lower (more negative) = worse; opt-in so often None
 }
 
 
@@ -59,6 +63,8 @@ def _get_daily_feature_rows(db: Session, user_id: str, from_date: date, to_date:
             "typing_std_ms": r.typing_std_ms,
             "typing_backspace_ratio": r.typing_backspace_ratio,
             "typing_fragmentation": r.typing_fragmentation,
+            "voice_strain_score": float(r.voice_strain_score) if r.voice_strain_score is not None else None,
+            "speech_sentiment_compound": float(r.speech_sentiment_compound) if r.speech_sentiment_compound is not None else None,
         })
     return out
 
@@ -90,11 +96,14 @@ def _deviation_to_risk(z: float, signal: str) -> float:
     if signal == "sleep_hours":
         # assume mean ~7, so low sleep = negative z = bad; high sleep = positive z = can be bad too
         return abs(z)
-    # Sleep quality, activity, mood: higher is better -> negative z = worse
-    if signal in ("sleep_quality", "activity_minutes", "mood_value"):
+    # Sleep quality, activity, mood, speech sentiment: higher is better -> negative z = worse
+    if signal in ("sleep_quality", "activity_minutes", "mood_value", "speech_sentiment_compound"):
         return max(0, -z)
     # Typing: higher interval, std, backspace ratio, fragmentation = worse
     if signal in ("typing_avg_interval_ms", "typing_std_ms", "typing_backspace_ratio", "typing_fragmentation"):
+        return max(0, z)
+    # Voice strain: higher score = worse
+    if signal == "voice_strain_score":
         return max(0, z)
     return max(0, abs(z))
 
@@ -165,6 +174,17 @@ def _first_day_wellbeing(day_row: dict) -> tuple[float, str, list[str]]:
         p = min(100, act / 60.0 * 100.0)
         parts.append(p)
         drivers.append("activity_minutes")
+    # Voice strain 0-100: higher score = more strain = worse -> invert to wellbeing
+    vs = day_row.get("voice_strain_score")
+    if vs is not None:
+        parts.append(max(0, 100 - float(vs)))
+        drivers.append("voice_strain_score")
+    # Speech sentiment compound -1..1 -> 0-100 (higher = better)
+    ssc = day_row.get("speech_sentiment_compound")
+    if ssc is not None:
+        p = (float(ssc) + 1) / 2.0 * 100.0
+        parts.append(max(0, min(100, p)))
+        drivers.append("speech_sentiment_compound")
     if not parts:
         return 50.0, "Watch", []
     wellbeing = round(sum(parts) / len(parts), 1)
@@ -271,6 +291,8 @@ def compute_risk_for_date(
         "typing_std_ms": summary.typing_std_ms,
         "typing_backspace_ratio": summary.typing_backspace_ratio,
         "typing_fragmentation": summary.typing_fragmentation,
+        "voice_strain_score": float(summary.voice_strain_score) if summary.voice_strain_score is not None else None,
+        "speech_sentiment_compound": float(summary.speech_sentiment_compound) if summary.speech_sentiment_compound is not None else None,
     }
     end_baseline = target_date - timedelta(days=1)
     start_baseline = end_baseline - timedelta(days=baseline_days + 30)
@@ -468,6 +490,8 @@ def get_today_score(db: Session, user_id: str) -> Optional[dict]:
                     "typing_std_ms": summary.typing_std_ms,
                     "typing_backspace_ratio": summary.typing_backspace_ratio,
                     "typing_fragmentation": summary.typing_fragmentation,
+                    "voice_strain_score": float(summary.voice_strain_score) if summary.voice_strain_score is not None else None,
+                    "speech_sentiment_compound": float(summary.speech_sentiment_compound) if summary.speech_sentiment_compound is not None else None,
                 }
                 _, _, contributions = _weighted_risk(day_row, baseline)
                 
@@ -492,6 +516,18 @@ def get_today_score(db: Session, user_id: str) -> Optional[dict]:
                                 "contribution": round(contrib_pct, 1)
                             })
     
+    # Voice strain (from daily summary if present)
+    summary_today = (
+        db.query(DailySummary)
+        .filter(DailySummary.user_id == user_id, DailySummary.date == today)
+        .first()
+    )
+    voice_strain_score = summary_today.voice_strain_score if summary_today else None
+    voice_strain_level = summary_today.voice_strain_level if summary_today else None
+    voice_confidence = summary_today.voice_confidence if summary_today else None
+    speech_sentiment_compound = summary_today.speech_sentiment_compound if summary_today else None
+    speech_sentiment_label = summary_today.speech_sentiment_label if summary_today else None
+
     return {
         "wellbeing_score": r.wellbeing_score,
         "status": r.status,
@@ -502,6 +538,11 @@ def get_today_score(db: Session, user_id: str) -> Optional[dict]:
         "drivers": r.drivers or [],
         "driver_contributions": driver_contributions,
         "date": r.date.isoformat(),
+        "voice_strain_score": voice_strain_score,
+        "voice_strain_level": voice_strain_level,
+        "voice_confidence": voice_confidence,
+        "speech_sentiment_compound": speech_sentiment_compound,
+        "speech_sentiment_label": speech_sentiment_label,
     }
 
 

@@ -64,25 +64,6 @@ export default function WellbeingScoreCard({ score }: WellbeingScoreCardProps) {
           ? 'ring-2 ring-sentra-high/60 ring-offset-0 shadow-xl shadow-sentra-high/30' 
           : ''
     }`}>
-      {/* Subtle glow effect for Watch/High (no pulse on box; High status pill pulses instead) */}
-      {(isWatch || isHigh) && (
-        <>
-          <div 
-            className={`absolute inset-0 rounded-3xl -z-10 ${
-              isWatch 
-                ? 'bg-sentra-primary/20 blur-2xl' 
-                : 'bg-sentra-high/25 blur-2xl'
-            }`}
-          />
-          <div 
-            className={`absolute -inset-1 rounded-3xl -z-20 opacity-50 ${
-              isWatch 
-                ? 'bg-sentra-primary/10 blur-3xl' 
-                : 'bg-sentra-high/15 blur-3xl'
-            }`}
-          />
-        </>
-      )}
       <div className="flex items-center gap-5 relative z-0">
           {/* Score number - no box, just the number */}
           <div className="flex-shrink-0">
@@ -96,7 +77,10 @@ export default function WellbeingScoreCard({ score }: WellbeingScoreCardProps) {
           
           {/* Content */}
           <div className="flex flex-col gap-2.5 flex-1 min-w-0">
-            {/* Status and confidence row */}
+            {/* Title - up first */}
+            <p className={`text-lg font-semibold leading-tight ${theme === 'dark' ? 'text-slate-200' : 'text-[#1e293b]'}`}>Caregiver wellbeing score</p>
+
+            {/* Status and confidence row - below title */}
             <div className="flex items-center gap-2.5 flex-wrap">
               <StatusPill status={score?.status ?? null} />
               {score?.confidence && (
@@ -121,9 +105,6 @@ export default function WellbeingScoreCard({ score }: WellbeingScoreCardProps) {
                 </span>
               )}
             </div>
-            
-            {/* Title */}
-            <p className={`text-lg font-semibold leading-tight ${theme === 'dark' ? 'text-slate-200' : 'text-[#1e293b]'}`}>Caregiver wellbeing</p>
             
             {/* Empty state */}
             {isEmpty && (

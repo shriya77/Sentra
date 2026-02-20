@@ -21,7 +21,7 @@ export default {
           muted: '#94a3b8', // Light gray for text
           'muted-soft': '#cbd5e1',
           stable: '#60a5fa', // Blue for stable status
-          watch: '#fbbf24', // Amber for watch
+          watch: '#d97706', // Darker amber for watch (more visible)
           high: '#f87171', // Red for high risk
         },
       },

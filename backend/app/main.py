@@ -67,3 +67,38 @@ app.include_router(org.router)
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/health/voice")
+def health_voice():
+    """Check if the voice strain module (openSMILE + eGeMAPS) is available. No auth required."""
+    opensmile_ok = False
+    soundfile_ok = False
+    pandas_ok = False
+    try:
+        import opensmile  # noqa: F401
+        opensmile_ok = True
+    except ImportError:
+        pass
+    try:
+        import soundfile  # noqa: F401
+        soundfile_ok = True
+    except ImportError:
+        pass
+    try:
+        import pandas  # noqa: F401
+        pandas_ok = True
+    except ImportError:
+        pass
+    ready = opensmile_ok and soundfile_ok and pandas_ok
+    return {
+        "voice_module_ready": ready,
+        "opensmile": opensmile_ok,
+        "soundfile": soundfile_ok,
+        "pandas": pandas_ok,
+        "message": (
+            "Voice strain (eGeMAPS) is ready. Use Record or upload an audio file on the dashboard."
+            if ready
+            else "Missing: pip install opensmile soundfile pandas (64-bit Python). Then restart the backend."
+        ),
+    }

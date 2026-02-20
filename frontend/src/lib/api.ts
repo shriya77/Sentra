@@ -62,6 +62,34 @@ export const api = {
     }),
   getOrgSummary: () => request<OrgSummary>('/api/org/summary'),
   getSignalDescriptions: () => request<SignalDescriptions>('/api/signals/descriptions'),
+  postVoiceStrain: async (file: File, analyzeSpeech = false): Promise<VoiceStrainResponse> => {
+    const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const form = new FormData();
+    form.append('file', file);
+    const url = `${API_BASE}/api/events/voice${analyzeSpeech ? '?analyze_speech=true' : ''}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: form,
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      let msg = text || `HTTP ${res.status}`;
+      try {
+        const j = JSON.parse(text) as { detail?: string | unknown };
+        if (j.detail != null) {
+          const d = j.detail;
+          msg = typeof d === 'string' ? d : JSON.stringify(d);
+        }
+      } catch {
+        /* use msg as-is */
+      }
+      throw new Error(msg);
+    }
+    return res.json();
+  },
 };
 
 // --- API response types (match backend) ---
@@ -76,6 +104,29 @@ export interface ScoreToday {
   drivers: string[];
   driver_contributions?: DriverContribution[];
   date?: string;
+  voice_strain_score?: number | null;
+  voice_strain_level?: string | null;
+  voice_confidence?: string | null;
+  speech_sentiment_compound?: number | null;
+  speech_sentiment_label?: string | null;
+}
+
+export interface SpeechSentiment {
+  compound: number;
+  positive: number;
+  negative: number;
+  neutral: number;
+  label: string;
+}
+
+export interface VoiceStrainResponse {
+  ok: boolean;
+  voice_strain_score: number;
+  voice_strain_level: string;
+  voice_confidence: string;
+  drivers?: { key: string; label: string; direction: string }[];
+  message?: string | null;
+  speech_sentiment?: SpeechSentiment;
 }
 
 export interface DriverContribution {

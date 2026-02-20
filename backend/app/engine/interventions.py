@@ -61,6 +61,7 @@ ACTIONS_BY_DRIVER = {
     "typing_std_ms": "60-second breathing reset.",
     "typing_backspace_ratio": "60-second breathing reset.",
     "typing_fragmentation": "60-second breathing reset.",
+    "voice_strain_score": "Take a brief vocal rest or drink water.",
 }
 
 

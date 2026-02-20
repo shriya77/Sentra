@@ -19,7 +19,7 @@ export default function BrandMark({ size = 'md', showWordmark = true }: BrandMar
         <img src="/sentra.png" alt="" width={imgSize} height={imgSize} className="rounded-xl block" />
       </div>
       {showWordmark && (
-        <span className={`font-semibold leading-none -ml-6 ${size === 'sm' ? 'text-3xl' : 'text-4xl'} ${theme === 'dark' ? 'text-slate-100' : 'text-[#1e293b]'}`} style={{ lineHeight: '1' }}>
+        <span className={`font-bold uppercase leading-none tracking-tight -ml-6 ${size === 'sm' ? 'text-3xl' : 'text-4xl'} ${theme === 'dark' ? 'text-slate-100' : 'text-[#1e293b]'}`} style={{ lineHeight: '1' }}>
           Sentra
         </span>
       )}

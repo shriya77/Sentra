@@ -57,6 +57,7 @@ async def generate_insight(drivers: list[str], status: str, user_context: dict) 
         "typing_std_ms": "typing consistency",
         "typing_backspace_ratio": "typing friction",
         "typing_fragmentation": "focus fragmentation",
+        "voice_strain_score": "voice strain",
     }
     
     driver_names = [driver_labels.get(d, d) for d in drivers[:3]]
@@ -306,6 +307,7 @@ async def select_interventions(
         "typing_std_ms": "typing consistency",
         "typing_backspace_ratio": "typing friction",
         "typing_fragmentation": "focus fragmentation",
+        "voice_strain_score": "voice strain",
     }
     
     driver_names = [driver_labels.get(d, d) for d in drivers[:3]]
